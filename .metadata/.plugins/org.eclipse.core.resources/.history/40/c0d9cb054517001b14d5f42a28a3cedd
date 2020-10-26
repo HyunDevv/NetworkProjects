@@ -1,0 +1,45 @@
+package com.sus;
+
+class Th extends Thread{
+
+	boolean stop = false;
+	boolean sus = false;
+	public void setStop(boolean stop) {
+		this.stop = stop;
+	}
+	public void setSus(boolean sus) {
+		this.sus = sus;
+	}
+	
+	@Override
+	public void run() {
+		while(true) {
+			if(stop == true) {
+				System.out.println("Stop Thread ...");
+				break;
+			}
+			Thread.sleep(200);
+			if(sus != true) {
+				System.out.println("Downloading ...");
+			}
+		}
+		System.out.println("End Thread ...");
+	}
+	
+}
+
+
+
+public class Test {
+	
+	public static void main(String[] args) {
+	
+		
+		
+
+	
+	
+	
+	}
+
+}

@@ -1,0 +1,40 @@
+package com.io;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
+public class Test1 {
+
+	public static void main(String[] args) {
+		String file = "c:\\network\\d01\\src\\text.txt";
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(file);
+			int data = 0;
+			// 끝 자리가 아닐때까지
+			while((data=fis.read()) != -1) {
+				System.out.println((char)data);  // 바이트단위로 읽었다
+			}
+			System.out.println(fis.available());
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if(fis != null) {
+				try {
+					fis.close();   // ** 꼭 close를 해주어야 한다!!! **
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}			
+		}
+	}
+	
+	
+	
+
+}
+
+
+

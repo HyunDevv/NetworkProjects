@@ -1,0 +1,27 @@
+package com.thread;
+
+class T extends Thread{
+
+	@Override
+	public void run() {
+		while(true) {
+			System.out.println("Thread ....");
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	
+}
+
+
+public class Test4 {
+
+	public static void main(String[] args) {
+		
+	}
+
+}

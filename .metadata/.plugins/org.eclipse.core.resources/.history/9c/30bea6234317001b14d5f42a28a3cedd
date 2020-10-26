@@ -1,0 +1,14 @@
+package com.sync;
+
+public class Bank {
+
+	public static void main(String[] args) {
+		Account acc = new Account(3000);
+		Dth dt = new Dth(acc);
+		Wth wt = new Wth(acc);
+		wt.start();
+		dt.start();
+		
+	}
+
+}

@@ -1,0 +1,55 @@
+package com.io;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+// 객체를 I/O한다
+public class Test3 {
+
+	public static void main(String[] args) {
+		User user = new User("id01", "이말숙");
+		
+		FileOutputStream fos = null;
+		BufferedOutputStream bos = null;
+		ObjectOutputStream oos = null;
+		
+		try {
+			fos = new FileOutputStream("user.serial");
+			bos = new BufferedOutputStream(fos);
+			oos = new ObjectOutputStream(bos);
+			oos.writeObject(user);
+			System.out.println("Write Complete ...");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} // 확장자명은 상관없다 
+		 finally {
+			 if(oos != null) {
+				 try {
+					oos.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			 }
+		 }
+		
+		FileInputStream fis = null;
+		BufferedInputStream bis = null;
+		ObjectInputStream ois = null;
+		
+		try {
+			fis = new FileInputStream("user.serial");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		
+	} // end main 
+	
+}

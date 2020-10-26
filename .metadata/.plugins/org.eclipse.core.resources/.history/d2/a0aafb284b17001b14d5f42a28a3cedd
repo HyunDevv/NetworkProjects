@@ -1,0 +1,22 @@
+package com.io;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
+public class Test1 {
+
+	public static void main(String[] args) {
+		String file = "test.txt";
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(file);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+}
+
+
+

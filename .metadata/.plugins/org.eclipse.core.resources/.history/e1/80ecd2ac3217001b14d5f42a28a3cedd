@@ -1,0 +1,23 @@
+package com.thread;
+
+class Th1 extends Thread{
+
+	@Override
+	public void run() {
+	}
+	
+}
+class Thread2 extends Thread{
+	@Override
+	public void run() {
+	}
+}
+
+public class Test5 {
+
+	
+	public static void main(String[] args) {
+		
+	}
+
+}

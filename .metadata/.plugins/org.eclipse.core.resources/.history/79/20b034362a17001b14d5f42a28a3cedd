@@ -1,0 +1,34 @@
+package com.thread;
+
+
+class Thread1 extends Thread{
+
+	public Thread1() {}
+
+	// run 함수를 사용한다
+	@Override
+	public void run() {
+		System.out.println("Start");
+		while(true) {
+			System.out.println("Connecting ...");
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		//System.out.println("End");
+	}
+	
+}
+
+
+// 메인
+public class Test3 {
+
+	public static void main(String[] args) {
+		Thread1 t1 = new Thread1();
+		t1.start();
+	}
+
+}

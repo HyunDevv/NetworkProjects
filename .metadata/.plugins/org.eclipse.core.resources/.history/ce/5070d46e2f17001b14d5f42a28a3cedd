@@ -1,0 +1,23 @@
+package com.thread;
+
+class T extends Thread{
+
+	@Override
+	public void run() {
+		while(true) {
+			System.out.println("Thread ....");
+			Thread.sleep(500);
+		}
+	}
+	
+	
+}
+
+
+public class Test4 {
+
+	public static void main(String[] args) {
+		
+	}
+
+}
