@@ -29,7 +29,6 @@ public class Server {
 			this.socket = socket;
 			try {
 				dis = new ObjectInputStream(socket.getInputStream());
-				System.out.println(dis);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

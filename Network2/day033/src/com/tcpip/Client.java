@@ -108,7 +108,6 @@ public class Client {
 				Thread.sleep(500);
 				// q가 들어오면 break
 				if(msg.equals("q")) {
-
 					Thread.sleep(1000);
 					System.out.println("Exit Client ..");
 					break;
@@ -129,7 +128,7 @@ public class Client {
 	
 	
 	public static void main(String[] args) {
-		Client client = new Client("192.168.0.28",7777);
+		Client client = new Client("192.168.0.103",7777);
 		try {
 			client.connet(); // 소켓연결
 			client.request();
