@@ -5,9 +5,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 
 import com.msg.Msg;
 
@@ -79,8 +81,24 @@ public class Server {
 				Msg msg = null;
 				try {
 					msg = (Msg) oi.readObject();
-					if(msg.getMsg().contentEquals("q")) {
+					if(msg.getMsg().equals("q")) {
 						throw new Exception();
+					}else if(msg.getMsg().equals("1")) {
+						String ip =
+						socket.getInetAddress().toString();
+						ArrayList<String> ips =
+								new ArrayList<>();
+						ips.add(ip);
+						msg.setIps(ips);
+						Set<String> keys = maps.keySet();
+						HashMap<String, Msg> hm = 
+								new HashMap<>();
+						for(String k:keys) {
+							hm.put(k,null);
+						}
+						// 1을 보낸 client
+						// 서버의 접속자 ip들
+						msg.setMaps(hm);
 					}
 					System.out.println(msg.getId()+msg.getMsg());
 					sendMsg(msg);
@@ -128,6 +146,15 @@ public class Server {
 					cols.iterator();
 			while(it.hasNext()) {
 				try {
+					// null 체크한다, 여러명에게 보내기
+					if(msg.getIps() != null) {
+						System.out.println("test!!!!!!!!!"+msg.getIps());
+						for(String ip:msg.getIps()) {
+							maps.get(ip).writeObject(msg);
+						}
+						break;
+					}
+					// broadcast
 					it.next().writeObject(msg);
 				} catch (IOException e) {
 					e.printStackTrace();

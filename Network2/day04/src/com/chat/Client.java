@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
+import java.util.Set;
 
 import com.msg.Msg;
 
@@ -52,8 +55,20 @@ public class Client {
 		Scanner sc = new Scanner(System.in);
 		while(true) {
 			System.out.println("Input msg");
-			String ms = sc.nextLine().trim();
-			Msg msg = new Msg("",id,ms);
+			String ms = sc.nextLine();
+			Msg msg = null;
+			// 1을 보내면 서버에서는 사용자 리스트를 보낸다.
+			if(ms.equals("1")){
+				msg = new Msg(id,ms);
+			}else {
+				ArrayList<String> ips = new ArrayList<>();
+				ips.add("/192.168.0.61");
+				ips.add("/192.168.0.9");
+				ips.add("/192.168.0.72");
+//그룹 보내기		msg = new Msg(ips,id,ms);   
+				msg = new Msg(null,id,ms);  // 전체 보내기
+			}
+
 			
 			sender.setMsg(msg);
 			new Thread(sender).start();
@@ -129,6 +144,14 @@ public class Client {
 				Msg msg = null;
 				try {
 					msg = (Msg) oi.readObject();
+					if(msg.getMaps() != null) {
+						HashMap<String,Msg> hm = msg.getMaps();
+						Set<String> keys = hm.keySet();
+						for(String k : keys) {
+							System.out.println(k);
+						}
+						continue;
+					}
 					System.out.println(msg.getId()+msg.getMsg());
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -146,15 +169,15 @@ public class Client {
 			}catch(Exception e){
 			
 			}
-//			// 서버가 끊기면 connect를 한다!
-//			try {
-//				Thread.sleep(2000);
-//				System.out.println("test2");
-//				connect();
-//				sendMsg();
-//			} catch (Exception e1) {
-//				e1.printStackTrace();
-//			}
+			// 서버가 끊기면 connect를 한다!
+			try {
+				Thread.sleep(2000);
+				System.out.println("test2");
+				connect();
+				sendMsg();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 		
 		}
 		
@@ -163,7 +186,7 @@ public class Client {
 	
 	
 	public static void main(String[] args) {
-		Client client = new Client("192.168.0.103",5555,"[Kim]");
+		Client client = new Client("192.168.0.28",5555,"[재현]");
 		
 		try {
 			client.connect();
