@@ -186,7 +186,7 @@ public class Client {
 	
 	
 	public static void main(String[] args) {
-		Client client = new Client("192.168.0.28",5555,"[재현]");
+		Client client = new Client("192.168.0.103",5555,"[재현]");
 		
 		try {
 			client.connect();
