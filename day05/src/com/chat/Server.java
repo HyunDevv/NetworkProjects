@@ -166,7 +166,7 @@ public class Server {
 	
 	
 	public static void main(String[] args) {
-		Server server = new Server(5555);
+		Server server = new Server(5556);
 		try {
 			server.startServer();
 		} catch (IOException e) {
