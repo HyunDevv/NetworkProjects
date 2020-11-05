@@ -28,6 +28,7 @@ public class SendAndReceiveSerial implements SerialPortEventListener {
 
 		try {
 			if (mode == true) {
+				// 시리얼 포트가 사용가능한지 확인
 				portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
 				System.out.printf("Port Connect : %s\n", portName);
 				connectSerial();
@@ -90,6 +91,8 @@ public class SendAndReceiveSerial implements SerialPortEventListener {
 		public SerialWriter(String serialData) {
 			// CheckSum Data 생성
 			this.data = sendDataFormat(serialData);
+			// check sum
+			// : seriavData chceksum \r
 		}
 
 		public String sendDataFormat(String serialData) {
@@ -99,8 +102,9 @@ public class SendAndReceiveSerial implements SerialPortEventListener {
 			for (char cc : c) {
 				cdata += cc;
 			}
+			
+			//check sum
 			cdata = (cdata & 0xFF);
-
 			String returnData = ":";
 			returnData += serialData + Integer.toHexString(cdata).toUpperCase();
 			returnData += "\r";
@@ -183,8 +187,9 @@ public class SendAndReceiveSerial implements SerialPortEventListener {
 
 	public static void main(String args[]) throws IOException {
 
-		SendAndReceiveSerial ss = new SendAndReceiveSerial("COM5", true);
+		SendAndReceiveSerial ss = new SendAndReceiveSerial("COM9", true);
 		ss.sendSerial("W2810003B010000000000005011", "10003B01");
+		//                ID,    DATA
 		//ss.close();
 	}
 

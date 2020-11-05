@@ -26,7 +26,7 @@ public class Test{
 	
 	public static void main(String args[]) throws IOException {
 
-		Test ss = new Test("COM5", true); // 내컴의 몇번포트로 붙이겠다
+		Test ss = new Test("COM9", true); // 내컴의 몇번포트로 붙이겠다
 
 
 	}
