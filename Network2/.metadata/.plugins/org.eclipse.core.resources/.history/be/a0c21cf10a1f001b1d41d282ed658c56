@@ -1,0 +1,428 @@
+package com.chat;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.Socket;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
+import java.util.Scanner;
+import java.util.Set;
+
+import com.msg.Msg;
+
+public class Client {
+
+	int port;
+	String address;
+	String id;
+	Socket socket;
+	Sender sender;
+	
+	static String ip;
+	
+	public Client() {}
+	public Client(String address, int port, String id) {
+		this.address = address;
+		this.port = port;
+		this.id = id;
+	}
+	
+	
+	
+	
+	private BufferedInputStream bin;
+	private InputStream in;
+	private OutputStream out;
+	private SerialPort serialPort;
+	private CommPortIdentifier portIdentifier;
+	private CommPort commPort;
+	private String result;
+	private String rawCanID, rawTotal;
+	// private boolean start = false;
+
+	public SendAndReceiveSerial(String portName, boolean mode) {
+
+		try {
+			if (mode == true) {
+				// 시리얼 포트가 사용가능한지 확인
+				portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
+				System.out.printf("Port Connect : %s\n", portName);
+				connectSerial();
+				// Serial Initialization ....
+				(new Thread(new SerialWriter())).start(); //can 네트워크에 들어간다
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public void connectSerial() throws Exception {
+
+		if (portIdentifier.isCurrentlyOwned()) {
+			System.out.println("Error: Port is currently in use");
+		} else {
+			commPort = portIdentifier.open(this.getClass().getName(), 5000);
+			if (commPort instanceof SerialPort) {
+				serialPort = (SerialPort) commPort;
+				serialPort.addEventListener(this);
+				serialPort.notifyOnDataAvailable(true);
+				serialPort.setSerialPortParams(921600, // 통신속도
+						SerialPort.DATABITS_8, // 데이터 비트
+						SerialPort.STOPBITS_1, // stop 비트
+						SerialPort.PARITY_NONE); // 패리티
+				in = serialPort.getInputStream();
+				bin = new BufferedInputStream(in);
+				
+				out = serialPort.getOutputStream();
+			} else {
+				System.out.println("Error: Only serial ports are handled by this example.");
+			}
+		}
+	}
+
+	public void sendSerial(String rawTotal, String rawCanID) {
+		this.rawTotal = rawTotal;
+		this.rawCanID = rawCanID;
+		// System.out.println("send: " + rawTotal);
+		try {
+			// Thread.sleep(50);
+			Thread.sleep(30);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		Thread sendTread = 
+				new Thread(new SerialWriter(rawTotal));
+		sendTread.start();
+	}
+
+	private class SerialWriter implements Runnable {
+		String data;
+
+		public SerialWriter() {
+			this.data = ":G11A9\r"; // can통신에 참여한다는 신호  can프로토콜에서 정해놓은 것 :로 시작 \r로 끝난다
+		}
+
+		public SerialWriter(String serialData) {
+			// CheckSum Data 생성
+			this.data = sendDataFormat(serialData);
+			// check sum
+			// : seriavData chceksum \r
+		}
+
+		public String sendDataFormat(String serialData) {
+			serialData = serialData.toUpperCase();
+			char c[] = serialData.toCharArray();
+			int cdata = 0;
+			for (char cc : c) {
+				cdata += cc;
+			}
+			
+			//check sum
+			cdata = (cdata & 0xFF);
+			String returnData = ":";
+			returnData += serialData + Integer.toHexString(cdata).toUpperCase();
+			returnData += "\r";
+			return returnData;
+		}
+
+		public void run() {
+			try {
+
+				byte[] inputData = data.getBytes();
+
+				out.write(inputData); 
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	
+
+	
+	// Asynchronized Receive Data
+	// --------------------------------------------------------
+	// 데이터를 받는다
+	public void serialEvent(SerialPortEvent event) {
+		switch (event.getEventType()) {
+		case SerialPortEvent.BI:
+		case SerialPortEvent.OE:
+		case SerialPortEvent.FE:
+		case SerialPortEvent.PE:
+		case SerialPortEvent.CD:
+		case SerialPortEvent.CTS:
+		case SerialPortEvent.DSR:
+		case SerialPortEvent.RI:
+		case SerialPortEvent.OUTPUT_BUFFER_EMPTY:
+			break;
+		case SerialPortEvent.DATA_AVAILABLE:
+			byte[] readBuffer = new byte[128];
+
+			try {
+
+				while (bin.available() > 0) {
+					int numBytes = bin.read(readBuffer);
+				}
+
+				String ss = new String(readBuffer);
+				System.out.println("Receive Low Data:" + ss + "||");
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			break;
+		}
+	}
+
+	
+
+	
+
+	public void close() throws IOException {
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		if (in != null) {
+			in.close();
+		}
+		if (out != null) {
+			out.close();
+		}
+		if (commPort != null) {
+			commPort.close();
+		}
+
+	}
+	
+	
+	
+	
+	public void connect() throws IOException {
+		// 소켓이 만들어지는 구간
+		try {
+			socket = new Socket(address,port);
+		} catch (Exception e) {
+			while(true) {
+				try {
+					Thread.sleep(2000);
+					socket = new Socket(address,port);
+
+					break;
+				} catch (Exception e1) {
+					System.out.println("Retry...");
+				}
+			}
+		}
+		
+		ip = (socket.getInetAddress().toString());
+		
+		System.out.println("Connected Server:"+address);
+		
+		sender = new Sender(socket);
+		new Receiver(socket).start();
+		
+		//sendMsg();
+	
+	}
+	
+	public void sendMsg() throws IOException {
+		Scanner sc = new Scanner(System.in);
+		while(true) {
+			System.out.println("Input msg");
+			String ms = sc.nextLine();
+			Msg msg = null;
+			// 1을 보내면 서버에서는 사용자 리스트를 보낸다.
+			if(ms.equals("1")){
+				msg = new Msg(id,ms);
+			}else {
+				ArrayList<String> ips = new ArrayList<>();
+				ips.add("/192.168.0.61");
+				ips.add("/192.168.0.9");
+				ips.add("/192.168.0.72");
+//그룹 보내기		msg = new Msg(ips,id,ms);   
+				msg = new Msg(null,id,ms);  // 전체 보내기
+			}
+
+			
+			sender.setMsg(msg);
+			new Thread(sender).start();
+			
+			if(ms.equals("q")){
+				break;
+			}
+		}
+		//sc.close();
+		if(socket != null) {
+			try {
+				socket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.println("Bye....");
+	}
+	
+	class Sender implements Runnable{
+		Socket socket;
+		ObjectOutputStream oo;
+		Msg msg;
+		
+		public Sender(Socket socket) throws IOException {
+			this.socket = socket;
+			oo = new ObjectOutputStream(socket.getOutputStream());
+		}
+		
+		public void setMsg(Msg msg) {
+			this.msg = msg;
+		}
+
+		@Override
+		public void run() {
+			if(oo != null) {
+				try {
+					oo.writeObject(msg);
+				} catch (IOException e) {
+					//e.printStackTrace();
+					try {
+						if(socket != null) {
+							socket.close();	
+						}
+					}catch(Exception e1) {
+						e1.printStackTrace();
+
+					}
+					// 서버가 끊기면 connect를 한다!
+					try {
+						Thread.sleep(2000);
+						connect();
+						//sendMsg();
+						System.out.println("test1");
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+					
+				}
+			}
+		}
+		
+	}
+	
+	class Receiver extends Thread{
+		ObjectInputStream oi;
+		public Receiver(Socket socket) throws IOException {
+			oi = new ObjectInputStream(socket.getInputStream());
+		}
+		@Override
+		public void run() {
+			while(oi != null) {
+				Msg msg = null;
+				try {
+					msg = (Msg) oi.readObject();
+					if(msg.getMaps() != null) {
+						HashMap<String,Msg> hm = msg.getMaps();
+						Set<String> keys = hm.keySet();
+						for(String k : keys) {
+							System.out.println(k);
+						}
+						continue;
+					}
+					System.out.println(msg.getId()+msg.getMsg());
+				} catch (Exception e) {
+					e.printStackTrace();
+					break;
+				}
+
+			} // end while
+			try {
+				if(oi != null) {
+					oi.close();
+				}
+				if(socket != null) {
+					socket.close();
+				}
+			}catch(Exception e){
+			
+			}
+			// 서버가 끊기면 connect를 한다!
+			try {
+				Thread.sleep(2000);
+				System.out.println("test2");
+				connect();
+				sendMsg();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		
+		}
+		
+	}
+	
+	
+	
+	public static void main(String[] args) throws InterruptedException {
+		Client client = new Client("192.168.0.28",5556,"[재현]");
+		
+		try {
+			client.connect();
+			//client.sendMsg();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		SendAndReceiveSerial ss = new SendAndReceiveSerial("COM9", true);
+		ss.sendSerial("W2810003B010000000000005011", "10003B01");
+		//                ID,    DATA
+		//ss.close();
+		
+		
+		
+		
+		
+		// 여기서부터 HttpConnection
+		String urlstr = "http://192.168.0.28/tcpip1/car.jsp";
+		URL url = null;
+		// HttpURLConnection 사용!
+		HttpURLConnection con = null;
+		
+		//System.out.println("-----test-----");
+		
+		// 5초에 한 번씩 랜덤 좌표를 전달하는 작업
+		while(true) {
+			//이 안에 전체가 있어야 한다!
+			try {
+				Random rd = new Random();
+				double sensor = rd.nextDouble()*100;
+				url = new URL(urlstr+"?ip="+ip+"&sensor="+sensor);
+				con = (HttpURLConnection) url.openConnection();
+				con.setReadTimeout(5000); // 5초동안 응답이 없으면 타임아웃
+				con.setRequestMethod("POST"); // 어떤 방식으로 보낼지
+				con.getInputStream();
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				con.disconnect();
+			}
+			Thread.sleep(5000);
+
+		}
+
+
+		
+	}
+		
+
+}

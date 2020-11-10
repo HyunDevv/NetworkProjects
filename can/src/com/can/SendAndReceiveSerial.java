@@ -187,7 +187,7 @@ public class SendAndReceiveSerial implements SerialPortEventListener {
 
 	public static void main(String args[]) throws IOException {
 
-		SendAndReceiveSerial ss = new SendAndReceiveSerial("COM9", true);
+		SendAndReceiveSerial ss = new SendAndReceiveSerial("COM5", true);
 		ss.sendSerial("W2810003B010000000000005011", "10003B01");
 		//                ID,    DATA
 		//ss.close();

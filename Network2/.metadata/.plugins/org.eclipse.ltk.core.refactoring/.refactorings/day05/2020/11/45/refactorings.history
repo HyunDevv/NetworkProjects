@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;Client.java&apos; to &apos;iot/src/com.chat&apos;&#x0D;&#x0A;- Original project: &apos;day05&apos;&#x0D;&#x0A;- Destination element: &apos;iot/src/com.chat&apos;&#x0D;&#x0A;- Original element: &apos;com.chat.Client.java&apos;" description="Copy compilation unit" destination="=iot/src&lt;com.chat" element1="/src&lt;com.chat{Client.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1604541746279" units="1" version="1.0"/>
+</session>
